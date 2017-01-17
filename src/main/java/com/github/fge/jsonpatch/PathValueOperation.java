@@ -26,7 +26,6 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.github.fge.jackson.jsonpointer.JsonPointer;
-
 import java.io.IOException;
 
 /**
@@ -37,6 +36,13 @@ public abstract class PathValueOperation
 {
     @JsonSerialize
     protected final JsonNode value;
+    @JsonSerialize
+    protected final JsonNode oldValue;
+
+    protected PathValueOperation(final String op, final JsonPointer path, final JsonNode value)
+    {
+        this(op, path, value, null);
+    }
 
     /**
      * Protected constructor
@@ -46,10 +52,11 @@ public abstract class PathValueOperation
      * @param value JSON value
      */
     protected PathValueOperation(final String op, final JsonPointer path,
-        final JsonNode value)
+        final JsonNode value, final JsonNode oldValue)
     {
         super(op, path);
         this.value = value.deepCopy();
+        this.oldValue = oldValue == null ? null : oldValue.deepCopy();
     }
 
     @Override
@@ -62,6 +69,12 @@ public abstract class PathValueOperation
         jgen.writeStringField("path", path.toString());
         jgen.writeFieldName("value");
         jgen.writeTree(value);
+
+        if (op != "add") {
+            jgen.writeFieldName("oldValue");
+            jgen.writeTree(oldValue);
+        }
+
         jgen.writeEndObject();
     }
 
@@ -76,6 +89,6 @@ public abstract class PathValueOperation
     @Override
     public final String toString()
     {
-        return "op: " + op + "; path: \"" + path + "\"; value: " + value;
+        return "op: " + op + "; path: \"" + path + "\"; value: " + value + "; oldValue: " + "\"" + oldValue + "\"";
     }
 }

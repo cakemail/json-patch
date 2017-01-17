@@ -41,9 +41,9 @@ public final class ReplaceOperation
 {
     @JsonCreator
     public ReplaceOperation(@JsonProperty("path") final JsonPointer path,
-        @JsonProperty("value") final JsonNode value)
+        @JsonProperty("value") final JsonNode value, @JsonProperty("oldValue") final JsonNode oldValue)
     {
-        super("replace", path, value);
+        super("replace", path, value, oldValue);
     }
 
     @Override

@@ -121,7 +121,7 @@ final class DiffOperation
                 @Override
                 JsonPatchOperation toOperation(final DiffOperation op)
                 {
-                    return new AddOperation(op.path, op.value);
+                    return new AddOperation(op.path, op.value, op.oldValue);
                 }
             },
         COPY
@@ -145,7 +145,7 @@ final class DiffOperation
             @Override
             JsonPatchOperation toOperation(final DiffOperation op)
             {
-                return new RemoveOperation(op.from);
+                return new RemoveOperation(op.from, op.oldValue);
             }
         },
         REPLACE
@@ -153,7 +153,7 @@ final class DiffOperation
             @Override
             JsonPatchOperation toOperation(final DiffOperation op)
             {
-                return new ReplaceOperation(op.from, op.value);
+                return new ReplaceOperation(op.from, op.value, op.oldValue);
             }
         },
         ;

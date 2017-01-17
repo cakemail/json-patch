@@ -70,11 +70,16 @@ public final class AddOperation
     private static final ReferenceToken LAST_ARRAY_ELEMENT
         = ReferenceToken.fromRaw("-");
 
-    @JsonCreator
-    public AddOperation(@JsonProperty("path") final JsonPointer path,
-        @JsonProperty("value") final JsonNode value)
+    public AddOperation(final JsonPointer path, final JsonNode value)
     {
         super("add", path, value);
+    }
+
+    @JsonCreator
+    public AddOperation(@JsonProperty("path") final JsonPointer path,
+        @JsonProperty("value") final JsonNode value, @JsonProperty("oldValue") final JsonNode oldValue)
+    {
+        super("add", path, value, oldValue);
     }
 
     @Override

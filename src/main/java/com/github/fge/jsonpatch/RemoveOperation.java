@@ -31,7 +31,6 @@ import com.fasterxml.jackson.databind.node.MissingNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.fge.jackson.jsonpointer.JsonPointer;
 import com.google.common.collect.Iterables;
-
 import java.io.IOException;
 
 /**
@@ -43,10 +42,18 @@ import java.io.IOException;
 public final class RemoveOperation
     extends JsonPatchOperation
 {
+    protected final JsonNode oldValue;
+
+    public RemoveOperation(final JsonPointer path)
+    {
+        this(path, null);
+    }
+
     @JsonCreator
-    public RemoveOperation(@JsonProperty("path") final JsonPointer path)
+    public RemoveOperation(@JsonProperty("path") final JsonPointer path, @JsonProperty("oldValue") JsonNode oldValue)
     {
         super("remove", path);
+        this.oldValue = oldValue == null ? null : oldValue.deepCopy();
     }
 
     @Override
@@ -76,6 +83,8 @@ public final class RemoveOperation
         jgen.writeStartObject();
         jgen.writeStringField("op", "remove");
         jgen.writeStringField("path", path.toString());
+        jgen.writeFieldName("oldValue");
+        jgen.writeTree(oldValue);
         jgen.writeEndObject();
     }
 

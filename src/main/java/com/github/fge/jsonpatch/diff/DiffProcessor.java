@@ -43,9 +43,17 @@ final class DiffProcessor
 
     private final List<DiffOperation> diffs = Lists.newArrayList();
 
+    private final boolean factorize;
+
     DiffProcessor(final Map<JsonPointer, JsonNode> unchanged)
     {
+        this(unchanged, true);
+    }
+
+    DiffProcessor(final Map<JsonPointer, JsonNode> unchanged, boolean factorize)
+    {
         this.unchanged = ImmutableMap.copyOf(unchanged);
+        this.factorize = factorize;
     }
 
     void valueReplaced(final JsonPointer pointer, final JsonNode oldValue,
@@ -61,20 +69,27 @@ final class DiffProcessor
 
     void valueAdded(final JsonPointer pointer, final JsonNode value)
     {
-        final int removalIndex = findPreviouslyRemoved(value);
-        if (removalIndex != -1) {
-            final DiffOperation removed = diffs.get(removalIndex);
-            diffs.remove(removalIndex);
-            diffs.add(DiffOperation.move(removed.getFrom(),
-                value, pointer, value));
-            return;
-        }
-        final JsonPointer ptr = findUnchangedValue(value);
-        final DiffOperation op = ptr != null
-            ? DiffOperation.copy(ptr, pointer, value)
-            : DiffOperation.add(pointer, value);
+        if (factorize)
+        {
+            final int removalIndex = findPreviouslyRemoved(value);
+            if (removalIndex != -1) {
+                final DiffOperation removed = diffs.get(removalIndex);
+                diffs.remove(removalIndex);
+                diffs.add(DiffOperation.move(removed.getFrom(),
+                    value, pointer, value));
+                return;
+            }
+            final JsonPointer ptr = findUnchangedValue(value);
+            final DiffOperation op = ptr != null
+                ? DiffOperation.copy(ptr, pointer, value)
+                : DiffOperation.add(pointer, value);
 
-        diffs.add(op);
+            diffs.add(op);
+        }
+        else
+        {
+            diffs.add(DiffOperation.add(pointer, value));
+        }
     }
 
     JsonPatch getPatch()

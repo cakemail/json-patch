@@ -104,6 +104,8 @@ public final class JsonDiffTest
         final Predicate<JsonNode> predicate
             = EQUIVALENCE.equivalentTo(expected);
 
+
+
         assertThat(predicate.apply(actual)).overridingErrorMessage(
             "patch is not what was expected\nscenario: %s\n"
             + "expected: %s\nactual: %s\n", message, expected, actual

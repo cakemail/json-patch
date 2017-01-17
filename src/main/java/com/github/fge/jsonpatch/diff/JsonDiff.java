@@ -90,11 +90,28 @@ public final class JsonDiff
     public static JsonPatch asJsonPatch(final JsonNode source,
         final JsonNode target)
     {
+        return asJsonPatch(source, target, true);
+    }
+
+    /**
+     * Generate a JSON patch for transforming the source node into the target
+     * node
+     *
+     * @param source the node to be patched
+     * @param target the expected result after applying the patch
+     * @param factorize should factorize value removals and additions as moves and copies
+     * @return the patch as a {@link JsonPatch}
+     *
+     * @since 1.9
+     */
+    public static JsonPatch asJsonPatch(final JsonNode source,
+        final JsonNode target, boolean factorize)
+    {
         BUNDLE.checkNotNull(source, "common.nullArgument");
         BUNDLE.checkNotNull(target, "common.nullArgument");
         final Map<JsonPointer, JsonNode> unchanged
             = getUnchangedValues(source, target);
-        final DiffProcessor processor = new DiffProcessor(unchanged);
+        final DiffProcessor processor = new DiffProcessor(unchanged, factorize);
 
         generateDiffs(processor, JsonPointer.empty(), source, target);
         return processor.getPatch();
@@ -110,9 +127,24 @@ public final class JsonDiff
      */
     public static JsonNode asJson(final JsonNode source, final JsonNode target)
     {
+        return asJson(source, target, true);
+    }
+
+    /**
+     * Generate a JSON patch for transforming the source node into the target
+     * node
+     *
+     * @param source the node to be patched
+     * @param target the expected result after applying the patch
+     * @param factorize should factorize value removals and additions as moves and copies
+     * @return the patch as a {@link JsonNode}
+     */
+    public static JsonNode asJson(final JsonNode source, final JsonNode target,
+        final boolean factorize)
+    {
         final String s;
         try {
-            s = MAPPER.writeValueAsString(asJsonPatch(source, target));
+            s = MAPPER.writeValueAsString(asJsonPatch(source, target, factorize));
             return MAPPER.readTree(s);
         } catch (IOException e) {
             throw new RuntimeException("cannot generate JSON diff", e);
